@@ -1,0 +1,21 @@
+// slash-fixture.txt — six command literals, in the shape a bundled JS agent
+// carries them (ISC-187). `Scripts/bench-slash.sh` points the catalog at this
+// file with the `slash-catalog` verb, so the bench measures THE BUBBLE and not
+// claude: the list on screen is exactly these six, in this order, on any
+// machine and after any `claude` release.
+//
+// The directory this file sits in doubles as the catalog's config directory,
+// and it has no `commands/`, no `skills/` and no plugins — so nothing of this
+// machine's own gets mixed into what the bench counts.
+//
+// Sorted case-insensitively by the catalog, so on screen they read:
+//   compact, compress, context, forge, model, review
+// and `/co` filters to the first three, whose SECOND is `compress`.
+var t4aSlashFixture = [
+{type:"local",name:"compact",description:"Free up context by summarising the conversation"},
+{type:"local",name:"compress",description:"Squeeze the thing in place",argumentHint:"<file>"},
+{type:"local-jsx",name:"context",description:"Show what is in the window right now"},
+{type:"local",name:"forge",description:"Build the thing",aliases:["build"],argumentHint:"<target>"},
+{type:"local",name:"model",description:"Set the model this pane talks to"},
+{type:"local-jsx",name:"review",description:"Read the diff and complain about it"},
+];

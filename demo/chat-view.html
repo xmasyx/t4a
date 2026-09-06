@@ -1,0 +1,211 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>T4A — la chat dentro il pannello</title>
+<style>
+  :root{
+    --ground:#000; --pane:#060606; --panel:#0E0E0E; --edge:#232323;
+    --raised:#121212; --hair:#242424; --hairsoft:#1A1A1A;
+    --ink:#EDECEC; --muted:#8F8F8F; --whisper:#5E5E5E;
+    --accent:#2F5C8A; --accentText:#4582BF; --failed:#D4574A;
+    --ui:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    --mono:"Berkeley Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#141414;color:var(--ink);font-family:var(--ui);
+       display:flex;justify-content:center;padding:28px 20px 60px}
+  .finestra{width:1180px;background:var(--ground);border:1px solid var(--edge);
+            border-radius:12px;overflow:hidden}
+
+  /* la banda */
+  .banda{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--ground)}
+  .conta{font:400 30px/1 var(--mono);color:var(--accentText)}
+  .conta.zero{color:var(--whisper)}
+  .conta small{font:400 11px/1 var(--mono);color:var(--whisper);margin-left:6px}
+  .titolo{font:600 15px/1 var(--ui)}
+  .cwd{font:400 12px/1 var(--mono);color:var(--whisper)}
+  .banda .destra{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .pill{border:1px solid var(--edge);border-radius:7px;padding:4px 9px;
+        font:400 11px/1 var(--mono);color:var(--muted)}
+
+  /* le schede */
+  .schede{display:flex;align-items:center;gap:4px;padding:0 10px 8px 10px}
+  .scheda{flex:1;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;
+          font:500 12.5px/1 var(--ui);color:var(--muted);background:transparent;cursor:default}
+  .scheda.attiva{background:var(--raised);color:var(--ink)}
+  .scheda .segno{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .punto{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block}
+  /* Una cifra sola sta in un cerchio vero, e si centra con una griglia:
+     con l'interlinea di default la cifra si siede sulla linea di base e
+     resta alta di un paio di punti dentro il tondo. */
+  .decisione{display:grid;place-items:center;width:18px;height:18px;padding:0;
+             border-radius:50%;background:var(--accent);color:#fff;
+             font:500 11px/1 var(--ui);font-variant-numeric:tabular-nums}
+  /* Le due correzioni sono MISURATE sui pixel, non a occhio: il carattere di
+     testo centra la cifra in orizzontale (con quello a spaziatura fissa
+     restava mezzo punto a sinistra), e mezzo punto in basso la porta a zero
+     in verticale (senza, sta un punto in alto). */
+  .decisione > span{display:block;line-height:1;transform:translateY(0.5px)}
+  .decisione.due{width:auto;min-width:18px;padding:0 5px;border-radius:9px}
+
+  /* la pagina della chat */
+  .chat{background:var(--pane);border-top:1px solid var(--hairsoft);padding:22px 26px 10px;
+        height:640px;overflow:auto}
+  /* La colonna di lettura ha una misura: una riga lunga 1400px non si legge,
+     e la taglia di un blocco spinta al bordo destro si scollega dal suo nome. */
+  .turno,.nota-riga{max-width:860px}
+  .etichetta{font:400 9px/1 var(--mono);letter-spacing:1.2px;text-transform:uppercase;
+             color:var(--whisper);margin:0 0 8px}
+  .domanda{font:400 13px/1.55 var(--mono);color:var(--ink);margin:0 0 22px;white-space:pre-wrap}
+  .risposta{font:400 13.5px/1.62 var(--ui);color:var(--ink);margin:0 0 26px;white-space:pre-wrap}
+  .turno{border-bottom:1px solid var(--hairsoft);padding-bottom:18px;margin-bottom:22px}
+  .turno:last-child{border-bottom:0}
+  .capo{font:400 9px/1 var(--mono);letter-spacing:1.2px;color:var(--whisper);margin:0 0 14px}
+
+  /* i blocchi */
+  .blocchi{margin:0 0 20px}
+  .blocco{border-left:2px solid transparent;margin:0 0 1px}
+  .blocco > .riga{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;
+                  font:400 12px/1.3 var(--ui);color:var(--muted);cursor:pointer;user-select:none}
+  .blocco > .riga:hover{background:var(--raised);color:var(--ink)}
+  .blocco.aperto > .riga{color:var(--ink)}
+  .freccia{font:400 10px/1 var(--mono);color:var(--whisper);width:9px}
+  .nome{font-weight:500}
+  .taglia{margin-left:auto;font:400 10.5px/1 var(--mono);color:var(--whisper)}
+  .blocco > .riga{max-width:860px}
+  .corpo{display:none;padding:8px 10px 12px 27px;font:400 11.5px/1.6 var(--mono);
+         color:var(--ink);white-space:pre-wrap;user-select:text;cursor:pointer}
+  .blocco.aperto .corpo{display:block}
+  .blocco.rotto > .riga{color:var(--failed)}
+  .blocco.rotto{border-left-color:var(--failed)}
+  .corpo .add{color:#7FA88B}
+  .corpo .del{color:var(--failed)}
+
+  /* la casella in fondo */
+  .ingresso{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--ground);
+            border-top:1px solid var(--hair);font:400 12.5px/1 var(--mono);color:var(--whisper)}
+  .ingresso .agente{margin-left:auto;color:var(--muted)}
+  .nota{width:1180px;margin:18px auto 0;font:400 12.5px/1.6 var(--ui);color:#9a9a9a}
+  .nota b{color:#ddd;font-weight:600}
+  .nota code{font-family:var(--mono);font-size:11.5px;color:#bbb}
+</style>
+
+<div>
+<div class="finestra">
+  <div class="banda">
+    <div class="conta">1<small>waiting</small></div>
+    <div>
+      <div class="titolo">Analizza Package Swift README Progetto</div>
+      <div class="cwd">~/Desktop/lifeos/05-Tools/T4A</div>
+    </div>
+    <div class="destra"><span class="pill">sonnet 5</span><span class="pill">settings</span></div>
+  </div>
+
+  <div class="schede">
+    <div class="scheda attiva">Analizza Package Swift README
+      <span class="segno"><span class="punto"></span></span></div>
+    <div class="scheda">Ripara le notifiche del notch
+      <span class="segno"><span class="decisione"><span>2</span></span></span></div>
+    <div class="scheda">Compendio biologo</div>
+  </div>
+
+  <div class="chat">
+    <div class="turno">
+      <div class="capo">turno 1 · 6.8s</div>
+      <p class="etichetta">gli hai chiesto</p>
+      <p class="domanda">Leggi Package.swift, poi leggi README.md, e dimmi in una riga cosa fa questo progetto.</p>
+
+      <p class="etichetta">il lavoro · 2 blocchi</p>
+      <div class="blocchi">
+        <div class="blocco">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Read</span>
+            <span>Package.swift</span><span class="taglia">58 caratteri</span></div>
+          <div class="corpo">/Users/example/Projects/T4A/Package.swift</div>
+        </div>
+        <div class="blocco">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Read</span>
+            <span>README.md</span><span class="taglia">54 caratteri</span></div>
+          <div class="corpo">/Users/example/Projects/T4A/README.md</div>
+        </div>
+      </div>
+
+      <p class="etichetta">la risposta</p>
+      <p class="risposta">T4A è un terminale macOS nativo (Swift + SwiftTerm + rendering Metal proprio) che tratta le sessioni di agenti come Claude Code o Codex come oggetti strutturati: blocchi per turno, stato "aspetta te", richieste di permesso come card cliccabili, invece che semplice testo grezzo su un PTY.</p>
+    </div>
+
+    <div class="turno">
+      <div class="capo">turno 2 · 1m 12s</div>
+      <p class="etichetta">gli hai chiesto</p>
+      <p class="domanda">Il salto dal notch non porta alla chat giusta quando la chat è aperta qui dentro. Trova la causa e riparala.</p>
+
+      <p class="etichetta">il lavoro · 5 blocchi</p>
+      <div class="blocchi">
+        <div class="blocco">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Ragionamento</span>
+            <span class="taglia">14 righe</span></div>
+          <div class="corpo">Il notch legge i file che scrive l'hook, e lì dentro il campo si chiama
+`iterm`. Se T4A non pubblica niente di suo, quel campo resta vuoto e chi ascolta
+non ha nessun indirizzo a cui bussare. Prima di scrivere codice guardo se
+T4A cancella le variabili del terminale che lo ha lanciato.</div>
+        </div>
+        <div class="blocco aperto">
+          <div class="riga"><span class="freccia">▾</span><span class="nome">Bash</span>
+            <span>grep -rn "ITERM_" Sources/</span><span class="taglia">3 righe</span></div>
+          <div class="corpo">grep -rn "ITERM_" Sources/
+
+Sources/SwiftTermBackend/SwiftTermSession.swift:423:  let prefixes = ["CLAUDE_CODE_", "ITERM_", "__CFBundleIdentifier"]</div>
+        </div>
+        <div class="blocco">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Edit</span>
+            <span>Session.swift</span><span class="taglia">6 righe</span></div>
+          <div class="corpo"><span class="add">+ // Il tesserino del pannello, come iTerm fa con ITERM_SESSION_ID.</span>
+<span class="add">+ environment["T4A_SESSION_ID"] = id.uuidString</span>
+  backend.start(TerminalLaunch(executable: executable,</div>
+        </div>
+        <div class="blocco rotto">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Bash</span>
+            <span>swift build</span><span class="taglia">9 righe</span></div>
+          <div class="corpo">error: value of type 'Theme.Palette' has no member 'danger'
+  | `- error: value of type 'Theme.Palette' has no member 'danger'</div>
+        </div>
+        <div class="blocco">
+          <div class="riga"><span class="freccia">▸</span><span class="nome">Bash</span>
+            <span>swift test</span><span class="taglia">4 righe</span></div>
+          <div class="corpo">✔ Test run with 47 tests in 0 suites passed after 0.008 seconds.</div>
+        </div>
+      </div>
+
+      <p class="etichetta">la risposta</p>
+      <p class="risposta">Era lo scrub: T4A cancella tutte le variabili `ITERM_` e non ne pubblicava di proprie, quindi il record del notch nasceva senza indirizzo. Adesso ogni pannello esporta `T4A_SESSION_ID` e l'app ascolta su `t4a://focus?session=&lt;uuid&gt;`. Provato a tre poli sull'app viva.</p>
+    </div>
+  </div>
+
+  <div class="ingresso">message this session…<span class="agente">→ claude-code ⏎</span></div>
+</div>
+
+<div class="nota">
+  <b>Come si legge.</b> Domanda e risposta stanno sulla pagina, sempre intere. Il lavoro è una riga per blocco:
+  <code>▸ nome · su cosa · quanto</code>. <b>Clicca una riga</b> e il blocco si srotola lì dentro, <b>clicca dentro il
+  blocco aperto</b> e si richiude; il testo resta selezionabile (selezionare non chiude). Il blocco andato storto porta
+  il filo rosso. <b>Nelle schede:</b> il pallino dice che quella chat ha finito e aspetta te, il numero in blu dice
+  quante decisioni ha in coda.
+</div>
+</div>
+
+<script>
+  // Il click apre e chiude. Dentro un blocco aperto, una selezione vera non
+  // lo richiude: si chiude solo un click che non ha selezionato niente.
+  for (const blocco of document.querySelectorAll('.blocco')) {
+    const riga = blocco.querySelector('.riga');
+    const corpo = blocco.querySelector('.corpo');
+    const gira = () => {
+      blocco.classList.toggle('aperto');
+      riga.querySelector('.freccia').textContent =
+        blocco.classList.contains('aperto') ? '▾' : '▸';
+    };
+    riga.addEventListener('click', gira);
+    corpo.addEventListener('mouseup', () => {
+      if (String(document.getSelection())) return;
+      gira();
+    });
+  }
+</script>

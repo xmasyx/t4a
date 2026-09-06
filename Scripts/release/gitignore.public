@@ -1,0 +1,24 @@
+# Build
+.build/
+DerivedData/
+dist/
+node_modules/
+*.xcuserstate
+.DS_Store
+
+# Local to your machine: these point at transcripts and paths on your own disk,
+# and are produced by `demo/tools/extract.ts` and `demo/tools/facts.ts`.
+demo/tools/sources.json
+demo/tools/deny.local.json
+demo/facts.local.json
+demo/local.html
+
+# Bench output: a screenshot of a live session shows whatever was on your screen.
+design/evidence/
+
+# Working notes — specs, briefs and handoffs stay out of the repo.
+ISA.md
+BRIEF-*.md
+RIPRESA-*.md
+design/riferimenti/
+design/MISURE.md

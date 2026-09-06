@@ -1,0 +1,105 @@
+{
+  "source": "sample",
+  "label": "facts",
+  "note": "Public default. Session values come from the recorded session; the token windows are sample numbers.",
+  "items": [
+    {
+      "key": "context",
+      "kind": "context",
+      "label": "CONTEXT",
+      "tokens": 363000,
+      "model": "opus[1m]"
+    },
+    {
+      "key": "startup",
+      "kind": "meter",
+      "label": "STARTUP",
+      "pct": 6.4,
+      "note": "≈ 64.9k tokens"
+    },
+    {
+      "key": "effort",
+      "kind": "effort",
+      "label": "EFFORT",
+      "scale": [
+        "Low",
+        "Medium",
+        "High",
+        "xHigh",
+        "Max",
+        "Ultra"
+      ],
+      "active": "High"
+    },
+    {
+      "key": "w-5hr",
+      "kind": "window",
+      "label": "5HR",
+      "pct": 24,
+      "resets": "TODAY@1900"
+    },
+    {
+      "key": "w-wk",
+      "kind": "window",
+      "label": "WK",
+      "pct": 41,
+      "resets": "SUN@2259"
+    },
+    {
+      "key": "w-fable",
+      "kind": "window",
+      "label": "FABLE",
+      "pct": 38,
+      "resets": "SUN@2259",
+      "active": true
+    },
+    {
+      "key": "model",
+      "kind": "text",
+      "label": "MODEL",
+      "value": "claude-opus-5"
+    },
+    {
+      "key": "permissions",
+      "kind": "text",
+      "label": "MODE",
+      "value": "auto mode"
+    },
+    {
+      "key": "directory",
+      "kind": "text",
+      "label": "DIR",
+      "value": "~/T4A"
+    },
+    {
+      "key": "session",
+      "kind": "text",
+      "label": "SESSION",
+      "value": "Fase 1 demo"
+    },
+    {
+      "key": "branch",
+      "kind": "text",
+      "label": "BRANCH",
+      "value": "main"
+    },
+    {
+      "key": "engine",
+      "kind": "text",
+      "label": "ENGINE",
+      "value": "claude 2.1.236"
+    },
+    {
+      "key": "agents",
+      "kind": "text",
+      "label": "AGENTS",
+      "value": "idle"
+    },
+    {
+      "key": "extra",
+      "kind": "text",
+      "label": "SUB",
+      "value": "no extra usage"
+    }
+  ]
+}

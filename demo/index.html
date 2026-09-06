@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-theme="black" data-layout="rail" data-rail="open" data-inspector="open" data-dash="open">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T4A — demo</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="band" id="band">
+  <div class="band-left">
+  <div class="count" id="count">
+    <span class="count-number" id="count-number">0</span>
+    <span class="count-label" id="count-label">waiting</span>
+  </div>
+
+  <div class="band-line">
+    <span class="crumb-title" id="crumb-title"></span>
+    <span class="crumb-path" id="crumb-path"></span>
+  </div>
+  </div>
+
+  <div class="band-actions">
+    <button class="icon" id="toggle-rail" type="button" title="sessions panel" aria-label="sessions panel">
+      <span class="glyph"><i class="bar bar-left"></i></span>
+    </button>
+    <button class="icon" id="toggle-inspector" type="button" title="turn map panel" aria-label="turn map panel">
+      <span class="glyph"><i class="bar bar-right"></i></span>
+    </button>
+    <button class="icon" id="toggle-dash" type="button" title="dashboard bar" aria-label="dashboard bar">
+      <span class="glyph"><i class="bar bar-bottom"></i></span>
+    </button>
+    <button class="ghost" id="open-settings" type="button">settings</button>
+  </div>
+
+  <div class="grip grip-h" id="grip-band" title="drag to resize"></div>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="Sessions"></nav>
+
+<main class="stage" id="stage">
+  <nav class="rail" id="rail" aria-label="Sessions"></nav>
+  <div class="grip grip-v" id="grip-rail" title="drag to resize"></div>
+
+  <section class="terminal" aria-label="Terminal">
+    <div class="terminal-scroll" id="terminal-scroll">
+      <pre class="terminal-body" id="terminal"></pre>
+    </div>
+    <div class="approval-slot" id="approval-slot"></div>
+    <form class="composer" id="composer">
+      <textarea id="composer-input" rows="1" spellcheck="false"></textarea>
+      <div class="composer-foot">
+        <span class="composer-hint whisper" id="composer-hint"></span>
+        <button class="composer-send" id="composer-send" type="submit">Send</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="grip grip-v" id="grip-inspector" title="drag to resize"></div>
+  <aside class="inspector" id="inspector" aria-label="Turn map">
+    <div class="inspector-head">
+      <span class="whisper">turn map</span>
+      <span class="whisper" id="turn-count"></span>
+    </div>
+    <ol class="turns" id="turns"></ol>
+  </aside>
+</main>
+
+<footer class="dash" id="dash" aria-label="Dashboard">
+  <div class="grip grip-h" id="grip-dash" title="drag to resize"></div>
+  <div class="dash-items" id="dash-items">
+    <div class="dash-group" id="dash-left"></div>
+    <div class="dash-group dash-group-right" id="dash-right"></div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
