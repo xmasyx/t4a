@@ -55,8 +55,11 @@ subscription. If T4A disappeared tomorrow your sessions would be normal terminal
 ## Install
 
 ```sh
+brew trust xmasyx/tap      # once per Mac: Homebrew loads a third-party tap only after you trust it
 brew install --cask xmasyx/tap/t4a
 ```
+
+The first line is needed once per Mac: recent Homebrew refuses to load a cask from a tap that is not its own (`Refusing to load cask … from untrusted tap`) until you trust it, and it remembers the choice.
 
 The cask is signed with the project's own certificate and **is not notarized**, so once, after
 the first install:
